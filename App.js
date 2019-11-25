@@ -1,114 +1,84 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow
- */
-
-import React from 'react';
+import React from 'react'
+import { Image, TouchableHighlight } from 'react-native'
 import {
-  SafeAreaView,
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
-} from 'react-native';
-
-import {
+  Container,
   Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+  Body,
+  Text,
+  View,
+  Button,
+  Title,
+  Content,
+  Toast
+} from 'native-base'
+import ImageSlider from 'react-native-image-slider'
+import { openCameraActionSheet } from './utility'
+import { styles } from './styles'
+import { AppObjects } from './constants'
+let images = []
 
-const App: () => React$Node = () => {
+async function openActionSheet() {
+  let imageSrc = await openCameraActionSheet()
+  if (imageSrc) {
+    images.push(imageSrc)
+    Toast.show({
+      text: AppObjects.IMAGE_ADDED
+    });
+  }
+}
+
+const App = () => {
+  images = [
+    'https://images.pexels.com/photos/414612/pexels-photo-414612.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500',
+    'https://placeimg.com/640/640/beer',
+  ]
   return (
-    <>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
-          <Header />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
-            </View>
-          )}
-          <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.js</Text> to change this
-                screen and then come back to see your edits.
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </>
-  );
-};
+    <Container>
+      <Header>
+        <Body>
+          <Title>Image Slider for Sneed</Title>
+        </Body>
+      </Header>
+      <Content>
+        <View style={styles.container}>
+          <ImageSlider
+            loop
+            autoPlayWithInterval={6000}
+            images={images}
+            onPress={({ index }) => alert(index)}
+            customSlide={({ index, item, style }) => (
+              <View key={index} style={[style, styles.customSlide]}>
+                <Image source={{ uri: item }} style={styles.customImage} />
+              </View>
+            )}
+            customButtons={(position, move) => (
+              <View style={styles.buttons}>
+                {images.map((image, index) => {
+                  return (
+                    <TouchableHighlight
+                      key={index}
+                      underlayColor='#ccc'
+                      onPress={() => move(index)}
+                      style={styles.button}
+                    >
+                      <Text style={position === index && styles.buttonSelected}>
+                        {index + 1}
+                      </Text>
+                    </TouchableHighlight>
+                  )
+                })}
+              </View>
+            )}
+          />
+        </View>
+        <View style={styles.addImgBtnContainer}>
+          <Button style={styles.addImgBtn} onPress={() => openActionSheet()}>
+            <Text>Add Image</Text>
+          </Button>
+        </View>
+      </Content>
+    </Container>
+  )
+}
 
-const styles = StyleSheet.create({
-  scrollView: {
-    backgroundColor: Colors.lighter,
-  },
-  engine: {
-    position: 'absolute',
-    right: 0,
-  },
-  body: {
-    backgroundColor: Colors.white,
-  },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: Colors.black,
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-    color: Colors.dark,
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
-  },
-});
-
-export default App;
+export default App
